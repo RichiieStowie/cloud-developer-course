@@ -2,6 +2,7 @@ import { Router, Request, Response } from 'express';
 import { FeedItem } from '../models/FeedItem';
 import { requireAuth } from '../../users/routes/auth.router';
 import * as AWS from '../../../../aws';
+import { where } from 'sequelize/types';
 
 const router: Router = Router();
 
@@ -18,13 +19,39 @@ router.get('/', async (req: Request, res: Response) => {
 
 //@TODO
 //Add an endpoint to GET a specific resource by Primary Key
-
+router.get('/:id',async (req: Request, res: Response) => {
+    const { id } = req.params;
+    const feedItem = await FeedItem.findByPk(id);
+    if(!feedItem){
+        res.status(404).send("resource with id not present");
+    }
+    else{
+        res.status(200).send(feedItem)
+    }
+    
+})
 // update a specific resource
 router.patch('/:id', 
     requireAuth, 
     async (req: Request, res: Response) => {
         //@TODO try it yourself
-        res.status(500).send("not implemented")
+        const{ id } = req.params
+        const { caption, url} = req.params
+
+        let feedItem = await FeedItem.update({
+            caption: caption,
+            url: url
+        },
+        {
+            where: {id : id}
+        }
+        )
+        if(!feedItem){
+            res.status(500).send("not implemented")
+        }else{
+            res.status(201).send(feedItem);
+        }
+        
 });
 
 
