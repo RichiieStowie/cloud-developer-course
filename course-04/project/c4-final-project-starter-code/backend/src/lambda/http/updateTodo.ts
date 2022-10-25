@@ -13,9 +13,29 @@ export const handler = middy(
     const todoId = event.pathParameters.todoId
     const updatedTodo: UpdateTodoRequest = JSON.parse(event.body)
     // TODO: Update a TODO item with the provided id using values in the "updatedTodo" object
+    const userId = getUserId(event);
 
-
-    return undefined
+   let result = await updateTodo(userId,updatedTodo,todoId);
+   if(!result){
+    return {
+      statusCode: 400,
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Credentials': true
+      },
+      body: `Item does not exist for: ${todoId}`
+    }
+   }else{
+    return {
+      statusCode: 201,
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Credentials': true
+      },
+      body: `Successfully updated for todoId: ${todoId}`
+    }
+   }
+  }
 )
 
 handler
